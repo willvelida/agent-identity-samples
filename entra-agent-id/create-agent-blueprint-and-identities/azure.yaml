@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+name: agent-identity-api
+
+metadata:
+  template: agent-identity-api
+
+hooks:
+  preprovision:
+    shell: pwsh
+    run: ./hooks/preprovision.ps1
+    interactive: true
+  postprovision:
+    shell: pwsh
+    run: ./hooks/postprovision.ps1
+    interactive: true
+
+services:
+  api:
+    project: ./src/AgentIdentityApi
+    host: containerapp
+    language: dotnet
+    docker:
+      path: ./src/AgentIdentityApi/Dockerfile
+      context: ./src/AgentIdentityApi

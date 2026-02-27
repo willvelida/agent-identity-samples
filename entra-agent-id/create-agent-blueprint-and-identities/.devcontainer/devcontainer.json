@@ -1,0 +1,22 @@
+{
+    "name": "Agent Identity API",
+    "image": "mcr.microsoft.com/devcontainers/dotnet:10.0",
+    "features": {
+        "ghcr.io/azure/azure-dev/azd:latest": {},
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/powershell:1": {},
+        "ghcr.io/devcontainers/features/azure-cli:1": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-dotnettools.csdevkit",
+                "ms-azuretools.azure-dev",
+                "ms-azuretools.vscode-bicep",
+                "ms-vscode.powershell"
+            ]
+        }
+    },
+    "postCreateCommand": "pwsh -Command 'Install-Module Microsoft.Graph.Beta.Applications -Scope CurrentUser -Force -AllowClobber'",
+    "remoteUser": "vscode"
+}

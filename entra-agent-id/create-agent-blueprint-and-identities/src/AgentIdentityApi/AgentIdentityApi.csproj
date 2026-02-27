@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>8075dce8-acdd-4917-b5ab-5820600e3e0f</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Identity.Web" Version="4.3.0" />
+    <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

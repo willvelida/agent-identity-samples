@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "entra-agent-id", "entra-agent-id", "{BF1591AC-EAB1-26A3-4FD9-E07FABEA23F1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "create-agent-blueprint-and-identities", "create-agent-blueprint-and-identities", "{9A37C48E-842F-B8CC-82E7-0FA33F276CB0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{525B2DEF-9ECA-FCCD-0C0A-CECABE97C8C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentIdentityApi", "entra-agent-id\create-agent-blueprint-and-identities\src\AgentIdentityApi\AgentIdentityApi.csproj", "{DCB118BC-5199-00D1-071F-71959E6C5B72}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DCB118BC-5199-00D1-071F-71959E6C5B72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCB118BC-5199-00D1-071F-71959E6C5B72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCB118BC-5199-00D1-071F-71959E6C5B72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCB118BC-5199-00D1-071F-71959E6C5B72}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9A37C48E-842F-B8CC-82E7-0FA33F276CB0} = {BF1591AC-EAB1-26A3-4FD9-E07FABEA23F1}
+		{525B2DEF-9ECA-FCCD-0C0A-CECABE97C8C9} = {9A37C48E-842F-B8CC-82E7-0FA33F276CB0}
+		{DCB118BC-5199-00D1-071F-71959E6C5B72} = {525B2DEF-9ECA-FCCD-0C0A-CECABE97C8C9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4684DBD2-748C-4146-BA71-AD4228FFC1C5}
+	EndGlobalSection
+EndGlobal
