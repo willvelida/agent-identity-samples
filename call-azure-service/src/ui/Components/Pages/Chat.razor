@@ -1,0 +1,299 @@
+@page "/chat"
+@page "/chat/{SessionId}"
+@using Microsoft.Identity.Abstractions
+@using Microsoft.Identity.Web
+@using System.Text.Json
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@rendermode InteractiveServer
+@inject IDownstreamApi DownstreamApi
+@inject NavigationManager Navigation
+@inject MicrosoftIdentityConsentAndConditionalAccessHandler ConsentHandler
+
+<PageTitle>Chat — Agent Identity Sample</PageTitle>
+
+<div class="chat-container">
+    <div class="chat-sidebar">
+        <div class="sidebar-header">
+            <h5>Conversations</h5>
+            <button class="btn btn-sm btn-outline-light" @onclick="StartNewConversation" title="New conversation">+</button>
+        </div>
+        <div class="conversation-list">
+            @if (conversations is not null)
+            {
+                @foreach (var conv in conversations)
+                {
+                    <div class="conversation-item @(conv.SessionId == currentSessionId ? "active" : "")"
+                         @onclick="() => LoadConversation(conv.SessionId)">
+                        <div class="conv-title">@(string.IsNullOrEmpty(conv.Title) ? "Untitled" : conv.Title)</div>
+                        <div class="conv-date">@conv.LastUpdated.ToString("MMM dd, HH:mm")</div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="chat-main">
+        <div class="messages-area" id="messagesArea">
+            @if (messages.Count == 0)
+            {
+                <div class="empty-state">
+                    <h3>Agent Chat</h3>
+                    <p>Start a conversation with the agent. It can access your conversation history using Entra Agent Identity.</p>
+                </div>
+            }
+            else
+            {
+                @foreach (var msg in messages)
+                {
+                    <div class="message @msg.Role">
+                        <div class="message-bubble">
+                            <div class="message-content">@msg.Content</div>
+                            @if (msg.ToolCalls?.Count > 0)
+                            {
+                                <div class="tool-calls">
+                                    @foreach (var tool in msg.ToolCalls)
+                                    {
+                                        <span class="tool-badge" title="@tool">&#128295; @tool</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
+            @if (isLoading)
+            {
+                <div class="message assistant">
+                    <div class="message-bubble">
+                        <div class="typing-indicator">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="input-area">
+            <form @onsubmit="SendMessage" class="input-form">
+                <input @bind="userInput"
+                       @bind:event="oninput"
+                       placeholder="Type your message..."
+                       disabled="@isLoading"
+                       class="form-control message-input" />
+                <button type="submit" class="btn btn-primary send-button" disabled="@(isLoading || string.IsNullOrWhiteSpace(userInput))">
+                    Send
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? SessionId { get; set; }
+
+    private string? currentSessionId;
+    private string userInput = string.Empty;
+    private bool isLoading;
+    private bool initialized;
+    private List<ChatMessage> messages = [];
+    private List<ConversationSummary>? conversations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentSessionId = SessionId;
+        await LoadConversations();
+        if (!string.IsNullOrEmpty(SessionId))
+        {
+            await LoadConversation(SessionId);
+        }
+        initialized = true;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // Prevent re-initialization when NavigateTo changes the route parameter
+        if (!initialized) return;
+        if (SessionId != currentSessionId && !string.IsNullOrEmpty(SessionId))
+        {
+            await LoadConversation(SessionId);
+        }
+    }
+
+    private async Task LoadConversations()
+    {
+        try
+        {
+            conversations = await DownstreamApi.GetForUserAsync<List<ConversationSummary>>(
+                "ChatApi",
+                options => options.RelativePath = "/api/conversations");
+        }
+        catch (Exception ex)
+        {
+            try { ConsentHandler.HandleException(ex); }
+            catch (NavigationException) { throw; }
+            catch { /* consent redirect not possible, swallow */ }
+            conversations = [];
+        }
+    }
+
+    private async Task LoadConversation(string sessionId)
+    {
+        currentSessionId = sessionId;
+        messages.Clear();
+
+        try
+        {
+            var conversation = await DownstreamApi.GetForUserAsync<ConversationDocument>(
+                "ChatApi",
+                options => options.RelativePath = $"/api/conversations/{sessionId}");
+
+            if (conversation?.Messages is not null)
+            {
+                foreach (var msg in conversation.Messages)
+                {
+                    messages.Add(new ChatMessage
+                    {
+                        Role = msg.Role,
+                        Content = msg.Content
+                    });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            try { ConsentHandler.HandleException(ex); }
+            catch (NavigationException) { throw; }
+            catch { /* consent redirect not possible, start fresh */ }
+        }
+
+        Navigation.NavigateTo($"/chat/{sessionId}", replace: true);
+        StateHasChanged();
+    }
+
+    private void StartNewConversation()
+    {
+        currentSessionId = null;
+        messages.Clear();
+        userInput = string.Empty;
+        Navigation.NavigateTo("/chat", replace: true);
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(userInput) || isLoading)
+            return;
+
+        var messageText = userInput.Trim();
+        userInput = string.Empty;
+
+        messages.Add(new ChatMessage { Role = "user", Content = messageText });
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var request = new ChatRequest
+            {
+                Message = messageText,
+                SessionId = currentSessionId
+            };
+
+            var response = await DownstreamApi.PostForUserAsync<ChatRequest, ChatApiResponse>(
+                "ChatApi",
+                request,
+                options => options.RelativePath = "/api/chat");
+
+            if (response is not null)
+            {
+                currentSessionId = response.SessionId;
+
+                var toolNames = response.ToolCalls?
+                    .Select(t => t.Tool)
+                    .ToList();
+
+                messages.Add(new ChatMessage
+                {
+                    Role = "assistant",
+                    Content = response.Reply,
+                    ToolCalls = toolNames
+                });
+
+                // Update the URL bar without forcing a full re-render.
+                // forceLoad: false (default) keeps the SignalR circuit alive.
+                Navigation.NavigateTo($"/chat/{currentSessionId}", replace: true);
+                await LoadConversations();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            try
+            {
+                ConsentHandler.HandleException(ex);
+            }
+            catch (NavigationException) { throw; }
+            catch
+            {
+                messages.Add(new ChatMessage
+                {
+                    Role = "assistant",
+                    Content = $"Error: {ex.Message}"
+                });
+            }
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private class ChatMessage
+    {
+        public string Role { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+        public List<string>? ToolCalls { get; set; }
+    }
+
+    private class ChatRequest
+    {
+        public string Message { get; set; } = string.Empty;
+        public string? SessionId { get; set; }
+    }
+
+    private class ChatApiResponse
+    {
+        public string Reply { get; set; } = string.Empty;
+        public string SessionId { get; set; } = string.Empty;
+        public List<ToolCallInfo>? ToolCalls { get; set; }
+    }
+
+    private class ToolCallInfo
+    {
+        public string Tool { get; set; } = string.Empty;
+        public string? SessionId { get; set; }
+        public string? Query { get; set; }
+    }
+
+    private class ConversationSummary
+    {
+        public string SessionId { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public DateTime LastUpdated { get; set; }
+    }
+
+    private class ConversationDocument
+    {
+        public string? Id { get; set; }
+        public string? SessionId { get; set; }
+        public List<DocumentMessage>? Messages { get; set; }
+    }
+
+    private class DocumentMessage
+    {
+        public string Role { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
+    }
+}

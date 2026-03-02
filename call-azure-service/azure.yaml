@@ -1,0 +1,30 @@
+name: call-azure-service
+
+metadata:
+  template: call-azure-service-agent-identity
+
+hooks:
+  preprovision:
+    shell: pwsh
+    run: ./hooks/preprovision.ps1
+    interactive: true
+  postprovision:
+    shell: pwsh
+    run: ./hooks/postprovision.ps1
+    interactive: true
+
+services:
+  api:
+    project: ./src/api
+    host: containerapp
+    language: dotnet
+    docker:
+      path: ./src/api/Dockerfile
+      context: ./src/api
+  frontend:
+    project: ./src/ui
+    host: containerapp
+    language: dotnet
+    docker:
+      path: ./src/ui/Dockerfile
+      context: ./src/ui

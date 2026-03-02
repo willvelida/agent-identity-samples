@@ -1,0 +1,42 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api", "api", "{81034408-37C8-1011-444E-4C15C2FADA8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatAgentApi", "src\api\ChatAgentApi.csproj", "{2EB8CD3E-130F-ED36-E658-E1EA83C914CC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ui", "ui", "{BBB7B94B-6E11-D9F1-7BA6-9ECA82DB22BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatFrontend", "src\ui\ChatFrontend.csproj", "{DBB86D47-C763-12B7-0EBB-23A322C45811}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2EB8CD3E-130F-ED36-E658-E1EA83C914CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EB8CD3E-130F-ED36-E658-E1EA83C914CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EB8CD3E-130F-ED36-E658-E1EA83C914CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EB8CD3E-130F-ED36-E658-E1EA83C914CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBB86D47-C763-12B7-0EBB-23A322C45811}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBB86D47-C763-12B7-0EBB-23A322C45811}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBB86D47-C763-12B7-0EBB-23A322C45811}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBB86D47-C763-12B7-0EBB-23A322C45811}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{81034408-37C8-1011-444E-4C15C2FADA8E} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{2EB8CD3E-130F-ED36-E658-E1EA83C914CC} = {81034408-37C8-1011-444E-4C15C2FADA8E}
+		{BBB7B94B-6E11-D9F1-7BA6-9ECA82DB22BF} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{DBB86D47-C763-12B7-0EBB-23A322C45811} = {BBB7B94B-6E11-D9F1-7BA6-9ECA82DB22BF}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FD19A144-785C-4F69-8008-B5603973ED8A}
+	EndGlobalSection
+EndGlobal
